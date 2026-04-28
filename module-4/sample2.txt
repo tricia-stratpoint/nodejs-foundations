@@ -1,0 +1,1 @@
+Second text file for file-reader.js
