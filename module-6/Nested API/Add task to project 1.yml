@@ -1,0 +1,21 @@
+info:
+  name: Add task to project 1
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:3002/projects/1/tasks
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Design footer"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,15 @@
+info:
+  name: Task 2
+  type: http
+  seq: 6
+
+http:
+  method: DELETE
+  url: http://localhost:3000/tasks/2
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

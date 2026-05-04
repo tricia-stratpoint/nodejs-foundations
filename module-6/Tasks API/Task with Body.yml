@@ -1,0 +1,18 @@
+info:
+  name: Task with Body
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:3000/tasks
+  body:
+    type: json
+    data: '{ "title": "Finish Module 6" }'
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

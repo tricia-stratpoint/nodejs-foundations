@@ -1,0 +1,21 @@
+info:
+  name: Update user
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: http://localhost:3001/users/1
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Tricia C."
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

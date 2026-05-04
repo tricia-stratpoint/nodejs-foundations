@@ -1,0 +1,19 @@
+info:
+  name: True Tasks
+  type: http
+  seq: 8
+
+http:
+  method: GET
+  url: http://localhost:3000/tasks?done=true
+  params:
+    - name: done
+      value: "true"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
