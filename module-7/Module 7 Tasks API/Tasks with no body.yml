@@ -1,0 +1,15 @@
+info:
+  name: Tasks with no body
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3000/tasks
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
