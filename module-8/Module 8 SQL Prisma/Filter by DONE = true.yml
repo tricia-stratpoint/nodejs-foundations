@@ -1,0 +1,19 @@
+info:
+  name: Filter by DONE = true
+  type: http
+  seq: 5
+
+http:
+  method: GET
+  url: http://localhost:3000/tasks?done=true
+  params:
+    - name: done
+      value: "true"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

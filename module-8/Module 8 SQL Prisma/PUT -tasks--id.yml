@@ -1,0 +1,23 @@
+info:
+  name: PUT /tasks/:id
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: http://localhost:3000/tasks/1
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Learn Node.js",
+        "done": true,
+        "tag": "work"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
