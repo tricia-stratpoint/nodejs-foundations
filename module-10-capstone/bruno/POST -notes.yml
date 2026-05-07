@@ -1,0 +1,23 @@
+info:
+  name: POST /notes
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:3000/notes
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Shopping list",
+        "content": "Milk, bread, eggs",
+        "tag": "personal"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
