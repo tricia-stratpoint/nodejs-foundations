@@ -6,8 +6,15 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const { tag } = req.query;
-    const where = tag ? { tag } : undefined;
+    const { tag, q } = req.query;
+    const where = {};
+    if (tag) where.tag = tag;
+    if (q) {
+      where.OR = [
+        { title: { contains: q } },
+        { content: { contains: q } },
+      ];
+    }
 
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
