@@ -7,8 +7,27 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const { tag } = req.query;
+    const where = tag ? { tag } : undefined;
+
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
+    const isPaginated = !isNaN(page) && !isNaN(limit);
+
+    if (isPaginated) {
+      const [notes, total] = await Promise.all([
+        db.note.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          skip: (page - 1) * limit,
+          take: limit,
+        }),
+        db.note.count({ where }),
+      ]);
+      return res.json({ data: notes, total, page, limit });
+    }
+
     const notes = await db.note.findMany({
-      where: tag ? { tag } : undefined,
+      where,
       orderBy: { createdAt: 'desc' },
     });
     res.json(notes);
