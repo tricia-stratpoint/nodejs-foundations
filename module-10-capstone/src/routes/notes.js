@@ -26,4 +26,48 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+  try {
+    const note = await db.note.findUnique({
+      where: { id: Number(req.params.id) },
+    });
+    if (!note) {
+      return res.status(404).json({ error: { status: 404, message: 'Note not found' } });
+    }
+    res.json(note);
+  } catch (err) {
+    res.status(500).json({ error: { status: 500, message: 'Internal server error' } });
+  }
+});
+
+router.put('/:id', async (req, res) => {
+  try {
+    const { title, content, tag } = req.body;
+    const note = await db.note.update({
+      where: { id: Number(req.params.id) },
+      data: { title, content, tag },
+    });
+    res.json(note);
+  } catch (err) {
+    if (err.code === 'P2025') {
+      return res.status(404).json({ error: { status: 404, message: 'Note not found' } });
+    }
+    res.status(500).json({ error: { status: 500, message: 'Internal server error' } });
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  try {
+    await db.note.delete({
+      where: { id: Number(req.params.id) },
+    });
+    res.status(204).send();
+  } catch (err) {
+    if (err.code === 'P2025') {
+      return res.status(404).json({ error: { status: 404, message: 'Note not found' } });
+    }
+    res.status(500).json({ error: { status: 500, message: 'Internal server error' } });
+  }
+});
+
 module.exports = router;
