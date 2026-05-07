@@ -1,13 +1,20 @@
 const request = require('supertest');
 const app = require('../src/app');
+
+jest.mock('../src/db', () => ({
+  note: {
+    findMany: jest.fn(),
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  },
+}));
+
 const db = require('../src/db');
 
-beforeEach(async () => {
-  await db.note.deleteMany();
-});
-
-afterAll(async () => {
-  await db.$disconnect();
+beforeEach(() => {
+  jest.clearAllMocks();
 });
 
 describe('GET /health', () => {
@@ -20,9 +27,20 @@ describe('GET /health', () => {
 
 describe('POST /notes', () => {
   test('creates a note and returns 201', async () => {
+    const mockNote = {
+      id: 1,
+      title: 'Shopping list',
+      content: 'Milk, bread, eggs',
+      tag: 'personal',
+      createdAt: '2025-10-28T03:15:00.000Z',
+      updatedAt: '2025-10-28T03:15:00.000Z',
+    };
+    db.note.create.mockResolvedValue(mockNote);
+
     const res = await request(app)
       .post('/notes')
       .send({ title: 'Shopping list', content: 'Milk, bread, eggs', tag: 'personal' });
+
     expect(res.status).toBe(201);
     expect(res.body).toMatchObject({
       title: 'Shopping list',
@@ -70,8 +88,25 @@ describe('POST /notes', () => {
 
 describe('GET /notes', () => {
   test('returns all notes sorted newest first', async () => {
-    await request(app).post('/notes').send({ title: 'First', content: 'Content 1' });
-    await request(app).post('/notes').send({ title: 'Second', content: 'Content 2' });
+    const mockNotes = [
+      {
+        id: 2,
+        title: 'Second',
+        content: 'Content 2',
+        tag: null,
+        createdAt: '2025-10-28T04:00:00.000Z',
+        updatedAt: '2025-10-28T04:00:00.000Z',
+      },
+      {
+        id: 1,
+        title: 'First',
+        content: 'Content 1',
+        tag: null,
+        createdAt: '2025-10-28T03:00:00.000Z',
+        updatedAt: '2025-10-28T03:00:00.000Z',
+      },
+    ];
+    db.note.findMany.mockResolvedValue(mockNotes);
 
     const res = await request(app).get('/notes');
     expect(res.status).toBe(200);
@@ -84,18 +119,25 @@ describe('GET /notes', () => {
 
 describe('GET /notes/:id', () => {
   test('returns a single note with 200', async () => {
-    const created = await request(app)
-      .post('/notes')
-      .send({ title: 'Single note', content: 'Some content' });
-    const { id } = created.body;
+    const mockNote = {
+      id: 1,
+      title: 'Single note',
+      content: 'Some content',
+      tag: null,
+      createdAt: '2025-10-28T03:15:00.000Z',
+      updatedAt: '2025-10-28T03:15:00.000Z',
+    };
+    db.note.findUnique.mockResolvedValue(mockNote);
 
-    const res = await request(app).get(`/notes/${id}`);
+    const res = await request(app).get('/notes/1');
     expect(res.status).toBe(200);
-    expect(res.body.id).toBe(id);
+    expect(res.body.id).toBe(1);
     expect(res.body.title).toBe('Single note');
   });
 
   test('returns 404 for a non-existent id', async () => {
+    db.note.findUnique.mockResolvedValue(null);
+
     const res = await request(app).get('/notes/9999');
     expect(res.status).toBe(404);
     expect(res.body.error.status).toBe(404);
@@ -104,32 +146,50 @@ describe('GET /notes/:id', () => {
 
 describe('PUT /notes/:id', () => {
   test('updates a note and returns 200', async () => {
-    const created = await request(app)
-      .post('/notes')
-      .send({ title: 'Original title', content: 'Original content' });
-    const { id } = created.body;
+    const mockUpdated = {
+      id: 1,
+      title: 'Updated title',
+      content: 'Updated content',
+      tag: null,
+      createdAt: '2025-10-28T03:15:00.000Z',
+      updatedAt: '2025-10-28T05:00:00.000Z',
+    };
+    db.note.update.mockResolvedValue(mockUpdated);
 
     const res = await request(app)
-      .put(`/notes/${id}`)
+      .put('/notes/1')
       .send({ title: 'Updated title', content: 'Updated content' });
     expect(res.status).toBe(200);
     expect(res.body.title).toBe('Updated title');
     expect(res.body.content).toBe('Updated content');
   });
+
+  test('returns 404 for a non-existent id', async () => {
+    const err = new Error('Record not found');
+    err.code = 'P2025';
+    db.note.update.mockRejectedValue(err);
+
+    const res = await request(app)
+      .put('/notes/9999')
+      .send({ title: 'Updated title', content: 'Updated content' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.status).toBe(404);
+  });
 });
 
 describe('DELETE /notes/:id', () => {
   test('deletes a note and returns 204', async () => {
-    const created = await request(app)
-      .post('/notes')
-      .send({ title: 'To delete', content: 'Delete me' });
-    const { id } = created.body;
+    db.note.delete.mockResolvedValue({});
 
-    const res = await request(app).delete(`/notes/${id}`);
+    const res = await request(app).delete('/notes/1');
     expect(res.status).toBe(204);
   });
 
   test('returns 404 for a non-existent id', async () => {
+    const err = new Error('Record not found');
+    err.code = 'P2025';
+    db.note.delete.mockRejectedValue(err);
+
     const res = await request(app).delete('/notes/9999');
     expect(res.status).toBe(404);
     expect(res.body.error.status).toBe(404);
