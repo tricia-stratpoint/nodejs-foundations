@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('../db');
+const { validateNote } = require('../middleware/validate');
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', validateNote, async (req, res) => {
   try {
     const { title, content, tag } = req.body;
     const note = await db.note.create({
@@ -40,7 +41,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateNote, async (req, res) => {
   try {
     const { title, content, tag } = req.body;
     const note = await db.note.update({
