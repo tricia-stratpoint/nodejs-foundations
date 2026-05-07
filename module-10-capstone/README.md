@@ -1,6 +1,6 @@
 # Notes API
 
-A REST API for managing personal notes, built with Node.js, Express, and SQLite via Prisma. Users can create, read, update, and delete notes. Each note has a title, content, an optional tag, and timestamps. The API includes input validation, consistent error handling, and integration tests.
+A REST API for managing personal notes, built with Node.js and Express, backed by a SQLite database using Prisma as the ORM. The API supports full CRUD operations such as creating, reading, updating, and deleting notes where each note has a title, content, an optional tag, and auto-managed timestamps. Input validation enforces field requirements and character limits, while a global error handler ensures all errors return consistent JSON responses. Integration tests are written with Jest and Supertest, with the Prisma layer mocked for fast, deterministic test runs. Beyond the core requirements, the API also supports tag filtering, keyword search, pagination, and client-controlled sorting on the GET /notes endpoint, plus request logging via Morgan middleware.
 
 ## Prerequisites
 
