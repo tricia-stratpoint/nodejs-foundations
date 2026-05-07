@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const { tag, q } = req.query;
+    const { tag, q, sort } = req.query;
     const where = {};
     if (tag) where.tag = tag;
     if (q) {
@@ -14,6 +14,16 @@ router.get('/', async (req, res) => {
         { title: { contains: q } },
         { content: { contains: q } },
       ];
+    }
+
+    const validFields = ['id', 'title', 'content', 'tag', 'createdAt', 'updatedAt'];
+    const validDirections = ['asc', 'desc'];
+    let orderBy = { createdAt: 'desc' };
+    if (sort) {
+      const [field, direction] = sort.split(':');
+      if (validFields.includes(field) && validDirections.includes(direction)) {
+        orderBy = { [field]: direction };
+      }
     }
 
     const page = parseInt(req.query.page);
@@ -24,7 +34,7 @@ router.get('/', async (req, res) => {
       const [notes, total] = await Promise.all([
         db.note.findMany({
           where,
-          orderBy: { createdAt: 'desc' },
+          orderBy,
           skip: (page - 1) * limit,
           take: limit,
         }),
@@ -33,10 +43,7 @@ router.get('/', async (req, res) => {
       return res.json({ data: notes, total, page, limit });
     }
 
-    const notes = await db.note.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
+    const notes = await db.note.findMany({ where, orderBy });
     res.json(notes);
   } catch (err) {
     res.status(500).json({ error: { status: 500, message: 'Internal server error' } });
