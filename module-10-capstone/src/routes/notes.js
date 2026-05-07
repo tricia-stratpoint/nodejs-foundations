@@ -6,7 +6,9 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
+    const { tag } = req.query;
     const notes = await db.note.findMany({
+      where: tag ? { tag } : undefined,
       orderBy: { createdAt: 'desc' },
     });
     res.json(notes);
